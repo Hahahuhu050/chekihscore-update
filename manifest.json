@@ -3,9 +3,15 @@
   "name": "Score Cekih by Sadewa Corp.",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3555/3555907.png",
+      "src": "1000059162.png",
       "type": "image/png",
       "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "1000059163.png",
+      "type": "image/png",
+      "sizes": "192x192",
       "purpose": "any maskable"
     }
   ],

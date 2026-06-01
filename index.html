@@ -2,181 +2,42 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Score Cekih by Sadewa Corp.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cekih Engine</title>
+    <!-- Link Manifest buat bikin jadi APK/Offline -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        .falling-star { position: fixed; top: -20px; font-size: 24px; animation: fall linear forwards; z-index: 100; pointer-events: none; }
-        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
-        .floating-emoji { position: fixed; bottom: -50px; font-size: 40px; animation: floatUp 2s ease-out forwards; z-index: 100; pointer-events: none; }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-80vh) scale(1.5); opacity: 0; } }
-        .fire-effect { animation: shake 0.5s ease-in-out infinite alternate, flash 0.5s ease-in-out; }
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
-        @keyframes flash { 0% { background-color: #ef4444; } }
-        
-        /* Animasi Icon Sadewa Corp */
-        .logo-animasi { animation: pulseGlow 3s ease-in-out infinite; }
-        .logo-menang { animation: spinWin 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite; }
-        @keyframes pulseGlow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(234, 179, 8, 0.3)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.7)); } }
-        @keyframes spinWin { 0% { transform: scale(1.2) rotate(0deg); filter: drop-shadow(0 0 25px #eab308); } 100% { transform: scale(1.2) rotate(360deg); filter: drop-shadow(0 0 25px #eab308); } }
+        body { background-color: #0f172a; color: white; }
     </style>
 </head>
-<body id="mainBody" class="bg-slate-900 text-slate-100 min-h-screen font-sans transition-colors duration-300">
+<body>
 
-    <!-- Header Aplikasi -->
-    <header class="p-3 flex justify-between items-center border-b border-slate-700 bg-slate-800/50 backdrop-blur">
-        <div class="flex items-center space-x-3">
-            <!-- Icon Aplikasi Beranimasi dari file 1000059163.png -->
-            <img id="appLogo" src="icon-512.png" alt="Sadewa Cekih Logo" class="w-9 h-9 rounded-full logo-animasi">
-            <h1 id="appTitleText" class="font-bold text-yellow-500 text-lg">Cekih Engine</h1>
-        </div>
-        <div id="corpName" class="text-xs text-slate-400 font-mono">score cekih by sadewa corp.</div>
+    <!-- Header Logo -->
+    <header class="p-4 flex items-center gap-3">
+        <!-- Pastikan ada file bernama logo.png di GitHub kamu -->
+        <img src="logo.png" alt="Logo" class="w-10 h-10 rounded-lg">
+        <h1 class="text-xl font-bold text-yellow-500">Cekih Engine</h1>
     </header>
 
-    <!-- KANVAS UTAMA -->
-    <main class="p-4 max-w-4xl mx-auto space-y-6">
-
-        <!-- 1. MODAL AWAL / SETUP PEMAIN -->
-        <div id="setupScreen" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 space-y-4 shadow-xl">
-            <div class="flex flex-col items-center mb-2">
-                <!-- Logo Besar di Menu Utama dari file 1000059162.png -->
-                <img src="icon-512.png" alt="Sadewa Logo" class="w-24 h-24 rounded-full logo-animasi mb-2">
-                <h2 class="text-lg font-bold text-center text-slate-200">Daftar Pemain Ronda</h2>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                    <label class="text-xs text-slate-400">Pemain A</label>
-                    <input type="text" id="setupA" value="Bapak Mukidi" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">Pemain B</label>
-                    <input type="text" id="setupB" value="Bapak Joko" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">Pemain C</label>
-                    <input type="text" id="setupC" value="Kang Asep" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">Pemain D</label>
-                    <input type="text" id="setupD" value="Cak Gondrong" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-            </div>
-            <div>
-                <label class="text-xs text-slate-400">Target Poin Kemenangan</label>
-                <input type="number" id="setupTarget" value="1000" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-center font-bold text-yellow-400">
-            </div>
-            <button onclick="mulaiPermainan()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-lg shadow-lg transition">
-                Gas Mulai Hitung Poin! 🚀
-            </button>
-        </div>
-
-        <!-- 2. SCREEN UTAMA GAMEPLAY -->
-        <div id="gameplayScreen" class="hidden space-y-6">
-            
-            <!-- Panel Kontrol Atas & Pengaturan Kemenangan -->
-            <div class="flex flex-wrap gap-2 justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700">
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs text-slate-400">Target:</span>
-                    <input type="number" id="liveTarget" onchange="ubahTargetLive()" class="w-20 bg-slate-900 text-center text-yellow-400 rounded p-1 font-bold">
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="toggleFullscreen()" class="bg-slate-700 text-xs px-2.5 py-1.5 rounded hover:bg-slate-600">🖥️ Fullscreen</button>
-                    <button onclick="openCustomizer()" class="bg-slate-700 text-xs px-2.5 py-1.5 rounded hover:bg-slate-600">🎨 Warna</button>
-                    <button onclick="toggleDarkMode()" id="btnTheme" class="bg-slate-700 text-xs px-2.5 py-1.5 rounded hover:bg-slate-600">🌙 Mode</button>
-                </div>
-            </div>
-
-            <!-- PAPAN SKOR UTAMA & AREA INPUT -->
-            <div id="captureArea" class="bg-slate-800 rounded-2xl border border-slate-700 p-4 shadow-xl space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-slate-300">Papan Skor Live</h3>
-                    <button onclick="ambilScreenshot()" class="bg-emerald-700 hover:bg-emerald-600 text-xs text-white px-3 py-1.5 rounded-lg transition">📸 Share/Screenshot</button>
-                </div>
-                
-                <div id="papanSkorContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-
-            <!-- TOMBOL AKSI RONDE -->
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="eksekusiUndo()" id="btnUndo" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-bold transition flex justify-center items-center gap-2">
-                    ↩️ Salah Input (Undo)
-                </button>
-                <button onclick="prosesRondeBerikutnya()" id="btnNext" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white py-3 rounded-xl font-bold shadow-lg transition flex justify-center items-center gap-2">
-                    Next Ronde & Suara 🔊
-                </button>
-            </div>
-
-            <!-- TAB DATA -->
-            <div class="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <div class="flex border-b border-slate-700 text-xs sm:text-sm overflow-x-auto whitespace-nowrap">
-                    <button onclick="switchTab('tab-grafik')" class="tab-btn px-4 py-2 text-yellow-500 border-b-2 border-yellow-500 font-bold" id="btn-tab-grafik">📈 Grafik</button>
-                    <button onclick="switchTab('tab-log')" class="tab-btn px-4 py-2 text-slate-400 font-bold" id="btn-tab-log">📜 Log</button>
-                    <button onclick="switchTab('tab-history')" class="tab-btn px-4 py-2 text-slate-400 font-bold" id="btn-tab-history">⏳ History</button>
-                    <button onclick="switchTab('tab-stats')" class="tab-btn px-4 py-2 text-slate-400 font-bold" id="btn-tab-stats">📊 Statistik Tokoh</button>
-                </div>
-
-                <div class="mt-4">
-                    <div id="tab-grafik" class="tab-content block">
-                        <canvas id="remiChart" class="w-full h-64"></canvas>
-                    </div>
-                    <div id="tab-log" class="tab-content hidden max-h-48 overflow-y-auto space-y-1 text-xs text-slate-300 font-mono"></div>
-                    <div id="tab-history" class="tab-content hidden max-h-48 overflow-y-auto text-xs text-slate-300">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-slate-700 text-slate-400">
-                                    <th class="p-1">Ronde</th>
-                                    <th class="p-1" id="thA">A</th>
-                                    <th class="p-1" id="thB">B</th>
-                                    <th class="p-1" id="thC">C</th>
-                                    <th class="p-1" id="thD">D</th>
-                                </tr>
-                            </thead>
-                            <tbody id="historyTableBody"></tbody>
-                        </table>
-                    </div>
-                    <div id="tab-stats" class="tab-content hidden text-xs space-y-2">
-                        <div id="statsContainer" class="grid grid-cols-2 gap-2"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RESET TOMBOL -->
-            <button onclick="pemicuResetTotal()" class="w-full bg-red-950/40 hover:bg-red-900 border border-red-800 text-red-400 text-xs py-2 rounded-lg transition">
-                🚨 Reset Total Ulang Turnamen (Balik ke Nol Semua)
-            </button>
-        </div>
-
+    <!-- Tempat aplikasi kamu akan berjalan -->
+    <main id="app" class="p-4">
+        <!-- Nanti app.js bakal otomatis ngisi konten di sini -->
     </main>
 
-    <!-- MODAL CUSTOMIZER -->
-    <div id="customizerModal" class="fixed inset-0 bg-black/70 backdrop-blur hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl w-full max-w-sm space-y-4">
-            <h3 class="font-bold text-center">🎨 Set Warna Custom</h3>
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between items-center">
-                    <span>Background App:</span>
-                    <input type="color" id="cfgBg" value="#0f172a">
-                </div>
-                <div class="flex justify-between items-center">
-                    <span>Warna Tombol Utama:</span>
-                    <input type="color" id="cfgBtn" value="#ca8a04">
-                </div>
-                <div class="flex justify-between items-center">
-                    <span>Warna Tulisan Judul:</span>
-                    <input type="color" id="cfgText" value="#eab308">
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="simpanCustomWarna()" class="flex-1 bg-yellow-600 py-2 rounded font-bold text-xs text-white">Terapkan</button>
-                <button onclick="tutupCustomizer()" class="flex-1 bg-slate-700 py-2 rounded font-bold text-xs">Batal</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Script Utama -->
     <script src="app.js"></script>
+
+    <!-- Script Pendaftaran Service Worker biar bisa offline -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Service Worker terdaftar, aplikasi siap offline!'))
+            .catch(err => console.log('Gagal daftar:', err));
+        }
+    </script>
 </body>
 </html>

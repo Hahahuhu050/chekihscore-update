@@ -27,18 +27,23 @@
 </head>
 <body id="mainBody" class="bg-slate-900 text-slate-100 min-h-screen font-sans transition-colors duration-300">
 
+    <!-- Header Aplikasi -->
     <header class="p-3 flex justify-between items-center border-b border-slate-700 bg-slate-800/50 backdrop-blur">
         <div class="flex items-center space-x-3">
+            <!-- Icon Aplikasi Beranimasi dari file 1000059163.png -->
             <img id="appLogo" src="icon-512.png" alt="Sadewa Cekih Logo" class="w-9 h-9 rounded-full logo-animasi">
             <h1 id="appTitleText" class="font-bold text-yellow-500 text-lg">Cekih Engine</h1>
         </div>
         <div id="corpName" class="text-xs text-slate-400 font-mono">score cekih by sadewa corp.</div>
     </header>
 
+    <!-- KANVAS UTAMA -->
     <main class="p-4 max-w-4xl mx-auto space-y-6">
 
+        <!-- 1. MODAL AWAL / SETUP PEMAIN -->
         <div id="setupScreen" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 space-y-4 shadow-xl">
             <div class="flex flex-col items-center mb-2">
+                <!-- Logo Besar di Menu Utama dari file 1000059162.png -->
                 <img src="icon-512.png" alt="Sadewa Logo" class="w-24 h-24 rounded-full logo-animasi mb-2">
                 <h2 class="text-lg font-bold text-center text-slate-200">Daftar Pemain Ronda</h2>
             </div>
@@ -60,77 +65,4 @@
                     <input type="text" id="setupD" value="Cak Gondrong" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
                 </div>
             </div>
-            <div class="pt-2">
-                <button onclick="mulaiGame()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-slate-950 font-bold py-3 rounded-xl shadow-lg transition">Mulai Pertandingan 🚀</button>
-            </div>
-        </div>
-
-        <div id="gameplayScreen" class="hidden space-y-6">
-            <div class="bg-slate-800/40 border border-slate-700/60 p-3 rounded-xl flex justify-between items-center text-sm">
-                <div class="flex items-center space-x-2">
-                    <span class="text-slate-400 text-xs">Target Poin:</span>
-                    <span id="targetDisplay" class="font-bold text-yellow-500">1000</span>
-                </div>
-                <div class="flex space-x-2">
-                    <button onclick="triggerUndo()" class="bg-amber-600/20 text-amber-400 text-xs px-2.5 py-1.5 rounded-lg border border-amber-600/30 font-medium hover:bg-amber-600 hover:text-white transition">↩️ Undo</button>
-                    <button onclick="triggerReset()" class="bg-red-600/20 text-red-400 text-xs px-2.5 py-1.5 rounded-lg border border-red-600/30 font-medium hover:bg-red-600 hover:text-white transition">⚠️ Reset</button>
-                </div>
-            </div>
-
-            <div id="captureArea" class="space-y-6 bg-slate-900 p-1 rounded-xl">
-                <div class="flex justify-between items-center px-1">
-                    <h3 id="gameStatusHeader" class="text-md font-bold text-slate-300 flex items-center gap-2">📋 Papan Skor Terkini</h3>
-                    <button onclick="takeScreenshot()" class="bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1 hover:bg-emerald-500 transition">📸 Share Skor</button>
-                </div>
-
-                <div id="scoreCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-
-                <div class="pt-2">
-                    <button id="mainActionButton" onclick="bukaInputRonde()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-md py-4 rounded-xl shadow-lg shadow-yellow-500/10 tracking-wide transition uppercase cursor-pointer">tukang kocok kartu 🔀</button>
-                </div>
-
-                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden">
-                    <div class="flex border-b border-slate-700/50 bg-slate-800/50 text-xs font-bold">
-                        <button id="btn-tab-chart" onclick="gantiTab('tab-chart')" class="flex-1 py-3 text-center text-yellow-500 border-b-2 border-yellow-500 tab-nav">📈 Grafik</button>
-                        <button id="btn-tab-history" onclick="gantiTab('tab-history')" class="flex-1 py-3 text-center text-slate-400 tab-nav">📜 Riwayat</button>
-                        <button id="btn-tab-log" onclick="gantiTab('tab-log')" class="flex-1 py-3 text-center text-slate-400 tab-nav">⚡ Logs AI</button>
-                    </div>
-                    <div class="p-4 min-h-[200px]">
-                        <div id="tab-chart" class="tab-data h-48"><canvas id="scoreChart"></canvas></div>
-                        <div id="tab-history" class="tab-data hidden overflow-x-auto">
-                            <table class="w-full text-left text-xs font-mono">
-                                <thead>
-                                    <tr class="text-slate-400 border-b border-slate-700"><th class="py-2">Ronde</th><th id="thNameA" class="py-2">A</th><th id="thNameB" class="py-2">B</th><th id="thNameC" class="py-2">C</th><th id="thNameD" class="py-2">D</th></tr>
-                                </thead>
-                                <tbody id="tableHistoryBody" class="text-slate-200 divide-y divide-slate-800/50"></tbody>
-                            </table>
-                        </div>
-                        <div id="tab-log" class="tab-data hidden space-y-1 max-h-44 overflow-y-auto font-mono text-[11px] text-slate-400"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="inputModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-sm space-y-4 shadow-2xl">
-            <div class="flex justify-between items-center"><h3 class="font-bold text-sm text-yellow-500">📥 Masukkan Poin Ronde Ini</h3><button onclick="tutupInputRonde()" class="text-slate-400 text-xs hover:text-white">Tutup</button></div>
-            <div class="space-y-3" id="inputPemainFields"></div>
-            <div class="flex space-x-2 pt-2 text-xs">
-                <button onclick="tutupInputRonde()" class="flex-1 bg-slate-700 text-slate-200 py-2 rounded-lg font-bold">Batal</button>
-                <button onclick="simpanPoinRonde()" class="flex-1 bg-yellow-500 text-slate-950 py-2 rounded-lg font-black">Selesai Hitung</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(() => console.log('Service Worker aktif! Cekih Engine siap offline.'))
-            .catch(err => console.log('Gagal daftar Service Worker:', err));
-        }
-    </script>
-</body>
-</html>
+        

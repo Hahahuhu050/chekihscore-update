@@ -1,0 +1,17 @@
+{
+  "short_name": "SadewaCekih",
+  "name": "Score Cekih by Sadewa Corp.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3555/3555907.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#0f172a",
+  "theme_color": "#ca8a04",
+  "display": "standalone",
+  "orientation": "portrait"
+}

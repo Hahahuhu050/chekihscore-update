@@ -2,181 +2,178 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Score Cekih by Sadewa Corp.</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cekih Engine - Sadewa Corp</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- html2canvas untuk Screenshot -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
-        .falling-star { position: fixed; top: -20px; font-size: 24px; animation: fall linear forwards; z-index: 100; pointer-events: none; }
+        .logo-animasi { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .logo-menang { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .fire-effect { animation: burn 0.5s ease-in-out infinite alternate; border-color: #ef4444 !important; box-shadow: 0 0 15px #ef4444; }
+        @keyframes burn { from { background-color: rgba(30, 41, 59, 0.4); } to { background-color: rgba(220, 38, 38, 0.2); } }
+        .falling-star { position: fixed; top: -20px; font-size: 24px; pointer-events: none; z-index: 9999; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
-        .floating-emoji { position: fixed; bottom: -50px; font-size: 40px; animation: floatUp 2s ease-out forwards; z-index: 100; pointer-events: none; }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-80vh) scale(1.5); opacity: 0; } }
-        .fire-effect { animation: shake 0.5s ease-in-out infinite alternate, flash 0.5s ease-in-out; }
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
-        @keyframes flash { 0% { background-color: #ef4444; } }
-        
-        /* Animasi Icon Sadewa Corp */
-        .logo-animasi { animation: pulseGlow 3s ease-in-out infinite; }
-        .logo-menang { animation: spinWin 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite; }
-        @keyframes pulseGlow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(234, 179, 8, 0.3)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.7)); } }
-        @keyframes spinWin { 0% { transform: scale(1.2) rotate(0deg); filter: drop-shadow(0 0 25px #eab308); } 100% { transform: scale(1.2) rotate(360deg); filter: drop-shadow(0 0 25px #eab308); } }
+        .floating-emoji { position: fixed; bottom: -50px; font-size: 40px; pointer-events: none; z-index: 9999; animation: floatUp 2s ease-out forwards; }
+        @keyframes floatUp { to { transform: translateY(-105vh); opacity: 0; } }
     </style>
 </head>
 <body id="mainBody" class="bg-slate-900 text-slate-100 min-h-screen font-sans transition-colors duration-300">
 
-    <!-- Header Aplikasi -->
-    <header class="p-3 flex justify-between items-center border-b border-slate-700 bg-slate-800/50 backdrop-blur">
-        <div class="flex items-center space-x-3">
-            <!-- Icon Aplikasi Beranimasi dari file 1000059163.png -->
-            <img id="appLogo" src="1000059163.png" alt="Sadewa Cekih Logo" class="w-9 h-9 rounded-full logo-animasi">
-            <h1 id="appTitleText" class="font-bold text-yellow-500 text-lg">Cekih Engine</h1>
+    <!-- TOP BAR / HEADER -->
+    <header class="bg-slate-800/50 border-b border-slate-700/50 p-4 sticky top-0 backdrop-blur z-50">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <!-- FIX LOGO: Diarahkan langsung ke logo.png di folder utama -->
+                <img id="appLogo" src="logo.png" alt="Sadewa Logo" class="w-10 h-10 object-contain logo-animasi rounded-lg bg-slate-700/30 p-1">
+                <div>
+                    <h1 id="appTitleText" class="text-xl font-black tracking-wider text-yellow-500">Cekih Engine</h1>
+                    <p class="text-[10px] font-mono tracking-widest text-slate-400 uppercase">score cekih by sadewa corp.</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleFullscreen()" class="bg-slate-700/60 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 transition">🖥️ Fullscreen</button>
+                <button onclick="openCustomizer()" class="bg-slate-700/60 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 transition">🎨 Warna</button>
+                <button id="btnTheme" onclick="toggleDarkMode()" class="bg-slate-700/60 hover:bg-slate-700 text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 transition">🌙 Gelap</button>
+            </div>
         </div>
-        <div id="corpName" class="text-xs text-slate-400 font-mono">score cekih by sadewa corp.</div>
     </header>
 
-    <!-- KANVAS UTAMA -->
-    <main class="p-4 max-w-4xl mx-auto space-y-6">
+    <main class="max-w-4xl mx-auto p-4 pb-24">
+        
+        <!-- SCREEN 1: SETUP AWAL -->
+        <section id="setupScreen" class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-6 shadow-xl max-w-md mx-auto mt-10">
+            <h2 class="text-lg font-bold text-yellow-500 mb-4 flex items-center gap-2">⚙️ Atur Susunan Ronda</h2>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Nama Pemain 1</label>
+                    <input type="text" id="setupA" value="Bapak Mukidi" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white font-medium focus:border-yellow-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Nama Pemain 2</label>
+                    <input type="text" id="setupB" value="Bapak Joko" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white font-medium focus:border-yellow-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Nama Pemain 3</label>
+                    <input type="text" id="setupC" value="Kang Asep" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white font-medium focus:border-yellow-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Nama Pemain 4</label>
+                    <input type="text" id="setupD" value="Kang Cecep" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white font-medium focus:border-yellow-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Target Poin Kemenangan</label>
+                    <input type="number" id="setupTarget" value="1000" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-3 py-2 text-white font-bold focus:border-yellow-500 outline-none">
+                </div>
+                <button onclick="mulaiPermainan()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-yellow-600/20 transition mt-4 cursor-pointer">🚀 MULAI RONDA GAME</button>
+            </div>
+        </section>
 
-        <!-- 1. MODAL AWAL / SETUP PEMAIN -->
-        <div id="setupScreen" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 space-y-4 shadow-xl">
-            <div class="flex flex-col items-center mb-2">
-                <!-- Logo Besar di Menu Utama dari file 1000059162.png -->
-                <img src="1000059162.png" alt="Sadewa Logo" class="w-24 h-24 rounded-full logo-animasi mb-2">
-                <h2 class="text-lg font-bold text-center text-slate-200">Daftar Pemain Ronda</h2>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                    <label class="text-xs text-slate-400">Pemain A</label>
-                    <input type="text" id="setupA" value="Bapak Mukidi" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">Pemain B</label>
-                    <input type="text" id="setupB" value="Bapak Joko" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">Pemain C</label>
-                    <input type="text" id="setupC" value="Kang Asep" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400">Pemain D</label>
-                    <input type="text" id="setupD" value="Cak Gondrong" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white">
-                </div>
-            </div>
-            <div>
-                <label class="text-xs text-slate-400">Target Poin Kemenangan</label>
-                <input type="number" id="setupTarget" value="1000" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2 text-white text-center font-bold text-yellow-400">
-            </div>
-            <button onclick="mulaiPermainan()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-lg shadow-lg transition">
-                Gas Mulai Hitung Poin! 🚀
-            </button>
-        </div>
-
-        <!-- 2. SCREEN UTAMA GAMEPLAY -->
-        <div id="gameplayScreen" class="hidden space-y-6">
+        <!-- SCREEN 2: GAMEPLAY (LIVE) -->
+        <section id="gameplayScreen" class="hidden space-y-6">
             
-            <!-- Panel Kontrol Atas & Pengaturan Kemenangan -->
-            <div class="flex flex-wrap gap-2 justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700">
+            <!-- Pengaturan Live & Tombol Aksi -->
+            <div class="bg-slate-800/30 border border-slate-700/50 p-4 rounded-xl flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center space-x-2">
-                    <span class="text-xs text-slate-400">Target:</span>
-                    <input type="number" id="liveTarget" onchange="ubahTargetLive()" class="w-20 bg-slate-900 text-center text-yellow-400 rounded p-1 font-bold">
+                    <span class="text-sm text-slate-400 font-medium">Target:</span>
+                    <input type="number" id="liveTarget" onchange="ubahTargetLive()" class="w-20 bg-slate-900 border border-slate-600 text-center font-black text-yellow-500 rounded py-1">
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="toggleFullscreen()" class="bg-slate-700 text-xs px-2.5 py-1.5 rounded hover:bg-slate-600">🖥️ Fullscreen</button>
-                    <button onclick="openCustomizer()" class="bg-slate-700 text-xs px-2.5 py-1.5 rounded hover:bg-slate-600">🎨 Warna</button>
-                    <button onclick="toggleDarkMode()" id="btnTheme" class="bg-slate-700 text-xs px-2.5 py-1.5 rounded hover:bg-slate-600">🌙 Mode</button>
+                <div class="flex items-center space-x-2">
+                    <button onclick="eksekusiUndo()" class="bg-amber-600/20 hover:bg-amber-600 text-amber-400 hover:text-white border border-amber-600/30 text-xs px-3 py-1.5 rounded-lg transition font-bold">↩️ Undo Ronde</button>
+                    <button onclick="pemicuResetTotal()" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/30 text-xs px-3 py-1.5 rounded-lg transition font-bold">⚠️ Reset Total</button>
                 </div>
             </div>
 
-            <!-- PAPAN SKOR UTAMA & AREA INPUT -->
-            <div id="captureArea" class="bg-slate-800 rounded-2xl border border-slate-700 p-4 shadow-xl space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-slate-300">Papan Skor Live</h3>
-                    <button onclick="ambilScreenshot()" class="bg-emerald-700 hover:bg-emerald-600 text-xs text-white px-3 py-1.5 rounded-lg transition">📸 Share/Screenshot</button>
-                </div>
+            <!-- AREA CAPTURE SCREENSHOT -->
+            <div id="captureArea" class="space-y-6 p-1">
                 
+                <!-- Judul Bagian Papan Skor -->
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">📋 Papan Skor Live</h3>
+                    <button onclick="ambilScreenshot()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition">📸 Share/Screenshot</button>
+                </div>
+
+                <!-- CONTAINER PAPAN SKOR CARD (DI-RENDER VIA JS) -->
                 <div id="papanSkorContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
 
-            <!-- TOMBOL AKSI RONDE -->
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="eksekusiUndo()" id="btnUndo" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-bold transition flex justify-center items-center gap-2">
-                    ↩️ Salah Input (Undo)
-                </button>
-                <button onclick="prosesRondeBerikutnya()" id="btnNext" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white py-3 rounded-xl font-bold shadow-lg transition flex justify-center items-center gap-2">
-                    Next Ronde & Suara 🔊
-                </button>
-            </div>
-
-            <!-- TAB DATA -->
-            <div class="bg-slate-800 rounded-2xl border border-slate-700 p-4">
-                <div class="flex border-b border-slate-700 text-xs sm:text-sm overflow-x-auto whitespace-nowrap">
-                    <button onclick="switchTab('tab-grafik')" class="tab-btn px-4 py-2 text-yellow-500 border-b-2 border-yellow-500 font-bold" id="btn-tab-grafik">📈 Grafik</button>
-                    <button onclick="switchTab('tab-log')" class="tab-btn px-4 py-2 text-slate-400 font-bold" id="btn-tab-log">📜 Log</button>
-                    <button onclick="switchTab('tab-history')" class="tab-btn px-4 py-2 text-slate-400 font-bold" id="btn-tab-history">⏳ History</button>
-                    <button onclick="switchTab('tab-stats')" class="tab-btn px-4 py-2 text-slate-400 font-bold" id="btn-tab-stats">📊 Statistik Tokoh</button>
+                <!-- TOMBOL INPUT POIN UTAMA -->
+                <div class="pt-2">
+                    <button id="btnNext" onclick="prosesRondeBerikutnya()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-slate-900 font-black text-lg py-4 rounded-xl shadow-xl shadow-yellow-600/10 transition tracking-wide cursor-pointer">🃏 HITUNG DAN UPDATE SKOR RONDE INI</button>
                 </div>
 
-                <div class="mt-4">
-                    <div id="tab-grafik" class="tab-content block">
-                        <canvas id="remiChart" class="w-full h-64"></canvas>
+                <!-- BAGIAN TABS BAWAH (GRAFIK, RIWAYAT, STATS, LOGS) -->
+                <div class="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden mt-4">
+                    <div class="flex border-b border-slate-700/50 bg-slate-800/50 text-xs font-bold">
+                        <button id="btn-tab-grafik" onclick="switchTab('tab-grafik')" class="flex-1 py-3 text-center tab-btn text-yellow-500 border-b-2 border-yellow-500">📈 Grafik</button>
+                        <button id="btn-tab-riwayat" onclick="switchTab('tab-riwayat')" class="flex-1 py-3 text-center tab-btn text-slate-400">📜 Riwayat</button>
+                        <button id="btn-tab-statistik" onclick="switchTab('tab-statistik')" class="flex-1 py-3 text-center tab-btn text-slate-400">📊 Statistik</button>
+                        <button id="btn-tab-log" onclick="switchTab('tab-log')" class="flex-1 py-3 text-center tab-btn text-slate-400">⚡ Logs AI</button>
                     </div>
-                    <div id="tab-log" class="tab-content hidden max-h-48 overflow-y-auto space-y-1 text-xs text-slate-300 font-mono"></div>
-                    <div id="tab-history" class="tab-content hidden max-h-48 overflow-y-auto text-xs text-slate-300">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-slate-700 text-slate-400">
-                                    <th class="p-1">Ronde</th>
-                                    <th class="p-1" id="thA">A</th>
-                                    <th class="p-1" id="thB">B</th>
-                                    <th class="p-1" id="thC">C</th>
-                                    <th class="p-1" id="thD">D</th>
-                                </tr>
-                            </thead>
-                            <tbody id="historyTableBody"></tbody>
-                        </table>
-                    </div>
-                    <div id="tab-stats" class="tab-content hidden text-xs space-y-2">
-                        <div id="statsContainer" class="grid grid-cols-2 gap-2"></div>
+
+                    <div class="p-4 min-h-[220px]">
+                        <!-- Tab Grafik -->
+                        <div id="tab-grafik" class="tab-content h-52">
+                            <canvas id="remiChart"></canvas>
+                        </div>
+                        <!-- Tab Riwayat Tabel -->
+                        <div id="tab-riwayat" class="tab-content hidden overflow-x-auto">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead>
+                                    <tr class="text-slate-400 border-b border-slate-700">
+                                        <th class="py-2">Ronde</th>
+                                        <th id="thA" class="py-2">-</th>
+                                        <th id="thB" class="py-2">-</th>
+                                        <th id="thC" class="py-2">-</th>
+                                        <th id="thD" class="py-2">-</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody" class="text-slate-200"></tbody>
+                            </table>
+                        </div>
+                        <!-- Tab Statistik Tambahan -->
+                        <div id="tab-statistik" class="tab-content hidden grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div id="statsContainer" class="contents"></div>
+                        </div>
+                        <!-- Tab Realtime Logs -->
+                        <div id="tab-log" class="tab-content hidden space-y-1 max-h-48 overflow-y-auto font-mono text-[11px] text-slate-400"></div>
                     </div>
                 </div>
+
             </div>
-
-            <!-- RESET TOMBOL -->
-            <button onclick="pemicuResetTotal()" class="w-full bg-red-950/40 hover:bg-red-900 border border-red-800 text-red-400 text-xs py-2 rounded-lg transition">
-                🚨 Reset Total Ulang Turnamen (Balik ke Nol Semua)
-            </button>
-        </div>
-
+        </section>
     </main>
 
-    <!-- MODAL CUSTOMIZER -->
-    <div id="customizerModal" class="fixed inset-0 bg-black/70 backdrop-blur hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl w-full max-w-sm space-y-4">
-            <h3 class="font-bold text-center">🎨 Set Warna Custom</h3>
-            <div class="space-y-2 text-sm">
+    <!-- MODAL CUSTOMIZER WARNA -->
+    <div id="customizerModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 w-full max-w-xs space-y-4 shadow-2xl">
+            <h3 class="font-bold text-sm text-yellow-400 flex items-center gap-1.5">🎨 Kustom Tema Sadewa</h3>
+            <div class="space-y-3 text-xs">
                 <div class="flex justify-between items-center">
-                    <span>Background App:</span>
-                    <input type="color" id="cfgBg" value="#0f172a">
+                    <span class="text-slate-300">Warna Background</span>
+                    <input type="color" id="cfgBg" value="#0f172a" class="w-8 h-8 rounded border-0 cursor-pointer">
                 </div>
                 <div class="flex justify-between items-center">
-                    <span>Warna Tombol Utama:</span>
-                    <input type="color" id="cfgBtn" value="#ca8a04">
+                    <span class="text-slate-300">Warna Tombol Utama</span>
+                    <input type="color" id="cfgBtn" value="#ca8a04" class="w-8 h-8 rounded border-0 cursor-pointer">
                 </div>
                 <div class="flex justify-between items-center">
-                    <span>Warna Tulisan Judul:</span>
-                    <input type="color" id="cfgText" value="#eab308">
+                    <span class="text-slate-300">Warna Teks Judul</span>
+                    <input type="color" id="cfgText" value="#eab308" class="w-8 h-8 rounded border-0 cursor-pointer">
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="simpanCustomWarna()" class="flex-1 bg-yellow-600 py-2 rounded font-bold text-xs text-white">Terapkan</button>
-                <button onclick="tutupCustomizer()" class="flex-1 bg-slate-700 py-2 rounded font-bold text-xs">Batal</button>
+            <div class="flex space-x-2 pt-2 text-xs">
+                <button onclick="tutupCustomizer()" class="flex-1 bg-slate-700 text-slate-200 py-2 rounded-lg font-bold">Batal</button>
+                <button onclick="simpanCustomWarna()" class="flex-1 bg-yellow-600 text-slate-900 py-2 rounded-lg font-black">Terapkan</button>
             </div>
         </div>
     </div>
 
+    <!-- Script Kodingan Utama Aplikasi -->
     <script src="app.js"></script>
 </body>
 </html>

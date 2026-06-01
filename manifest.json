@@ -3,13 +3,13 @@
   "name": "Score Cekih by Sadewa Corp.",
   "icons": [
     {
-      "src": "1000059162.png",
+      "src": "icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     },
     {
-      "src": "1000059163.png",
+      "src": "icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"

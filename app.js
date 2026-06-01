@@ -1,4 +1,3 @@
-// Database State Utama
 let state = {
     pemain: [
         { id: 0, nama: "Pemain A", poin: 0, bintang: 0, hitBakaran: 0, hitMinus: 0, gelaran: "Pemula" },
@@ -7,7 +6,7 @@ let state = {
         { id: 3, nama: "Pemain D", poin: 0, bintang: 0, hitBakaran: 0, hitMinus: 0, gelaran: "Pemula" }
     ],
     targetMenang: 1000,
-    historyRonde: [], // Isi: array clone dari poin pemain per ronde
+    historyRonde: [],
     logs: [],
     customColors: { bg: "#0f172a", btn: "#ca8a04", text: "#eab308" },
     isDarkMode: true,
@@ -15,15 +14,12 @@ let state = {
     lastNgebakarTiga: null
 };
 
-// Undo stack
 let undoStack = [];
-
 let chartInstance = null;
 
-// Audio engine via Speech Synthesis AI bawaan browser (Bisa output ke Bluetooth)
 function hitSuaraAI(teks) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Potong antrean suara sebelumnya
+        window.speechSynthesis.cancel();
         let rasan = new SpeechSynthesisUtterance(teks);
         rasan.lang = 'id-ID';
         rasan.rate = 1.0; 
@@ -32,7 +28,6 @@ function hitSuaraAI(teks) {
     }
 }
 
-// Inisialisasi awal load web
 window.onload = function() {
     let localData = localStorage.getItem('sadewa_cekih_state');
     if (localData) {
@@ -83,8 +78,6 @@ function inisialisasiUI() {
 function renderPapanSkor() {
     const container = document.getElementById('papanSkorContainer');
     container.innerHTML = '';
-    
-    // Urutkan peringkat berdasarkan poin tertinggi
     let sortedPemain = [...state.pemain].sort((a,b) => b.poin - a.poin);
 
     state.pemain.forEach((p) => {
@@ -107,8 +100,6 @@ function renderPapanSkor() {
                         <span class="text-[10px] text-slate-400">pts</span>
                     </div>
                 </div>
-                
-                <!-- Input Manual & Tombol Plus Minus Temp -->
                 <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between gap-1">
                     <button onclick="adjustTempPoin(${p.id}, -10)" class="bg-slate-800 text-xs font-bold px-2 py-1 rounded text-red-400 hover:bg-slate-900">-10</button>
                     <button onclick="adjustTempPoin(${p.id}, -1)" class="bg-slate-800 text-xs font-bold px-1.5 py-1 rounded text-red-400 hover:bg-slate-900">-1</button>
@@ -123,8 +114,7 @@ function renderPapanSkor() {
 
 function adjustTempPoin(id, val) {
     let input = document.getElementById(`inputPoin-${id}`);
-    let cur = parseInt(input.value) || 0;
-    input.value = cur + val;
+    input.value = (parseInt(input.value) || 0) + val;
 }
 
 function editNamaLive(id, namaBaru) {
@@ -138,61 +128,47 @@ function editNamaLive(id, namaBaru) {
 
 function ubahTargetLive() {
     state.targetMenang = parseInt(document.getElementById('liveTarget').value) || 1000;
-    pushLog("⚙️ Target kemenangan diubah di tengah permainan menjadi " + state.targetMenang + " poin.");
+    pushLog("⚙️ Target kemenangan diubah menjadi " + state.targetMenang);
     simpanKeLocalStorage();
 }
 
-// ALGORITMA UTAMA: HITUNG RONDE & BAKARAN SALIP OTOMATIS
 function prosesRondeBerikutnya() {
-    // Save history buat undo
     undoStack.push(JSON.stringify(state));
     
     let poinRondeIni = [];
     let adaMinus = false;
-    let daftarMinusPemain = [];
 
-    // Baca input
     for(let i=0; i<4; i++) {
         let ipt = parseInt(document.getElementById(`inputPoin-${i}`).value) || 0;
         poinRondeIni.push(ipt);
         if(ipt < 0) {
             adaMinus = true;
             state.pemain[i].hitMinus++;
-            daftarMinusPemain.push(state.pemain[i].nama);
         }
     }
 
     let poinLama = state.pemain.map(p => p.poin);
     let poinBaru = [];
 
-    // Tambah poin sementara
     for(let i=0; i<4; i++) {
         state.pemain[i].poin += poinRondeIni[i];
         poinBaru.push(state.pemain[i].poin);
-        
         let aksi = poinRondeIni[i] >= 0 ? "bertambah " + poinRondeIni[i] : "berkurang " + Math.abs(poinRondeIni[i]);
         pushLog(`🔹 Poin ${state.pemain[i].nama} ${aksi}. Total: ${state.pemain[i].poin}`);
     }
 
-    // Deteksi Bakaran Saling Terhubung (Salip-Menyalip)
-    let suaraBakaranTeks = "";
     let korbanKebakarRondeIni = [];
     let pembakarRondeIni = [];
 
     for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-            if (i !== j) {
-                // Syarat: J di atas I di ronde sebelumnya, tapi disalip di ronde ini
-                if (poinLama[j] > poinLama[i] && poinBaru[i] > poinBaru[j] && poinLama[j] > 0) {
-                    korbanKebakarRondeIni.push(j);
-                    pembakarRondeIni.push(i);
-                }
+            if (i !== j && poinLama[j] > poinLama[i] && poinBaru[i] > poinBaru[j] && poinLama[j] > 0) {
+                korbanKebakarRondeIni.push(j);
+                pembakarRondeIni.push(i);
             }
         }
     }
 
-    // Eksekusi pembersihan korban bakaran (Reset ke 0)
-    // Gunakan Set agar tidak double reset kalau disalip 2 orang sekaligus
     let unikKorban = [...new Set(korbanKebakarRondeIni)];
     unikKorban.forEach(kId => {
         state.pemain[kId].poin = 0;
@@ -201,14 +177,11 @@ function prosesRondeBerikutnya() {
         efekApiHancur(kId);
     });
 
-    // Cek achievement tukang bakar 3 orang sekaligus
     if(unikKorban.length === 3) {
-        let siPembakar = pembakarRondeIni[0];
-        state.lastNgebakarTiga = siPembakar;
-        pushLog(`🔥 GOKIL! ${state.pemain[siPembakar].nama} ngebakar semua orang sekaligus!`);
+        state.lastNgebakarTiga = pembakarRondeIni[0];
     }
 
-    // Cek Kemenangan / Tutup Target (Mencapai batas target poin)
+    // KOREKSI UTAMA: Cek Kemenangan Sebelum Menyusun Narasi Suara
     let adaJuara = false;
     let namaJuara = "";
     let idJuara = null;
@@ -221,124 +194,97 @@ function prosesRondeBerikutnya() {
         }
     });
 
-    // Update Achievement / Gelaran Titel Tokoh
-    hitungGelarAchievement();
+    // Reset Input Box
+    for(let i=0; i<4; i++) document.getElementById(`inputPoin-${i}`).value = '';
 
-    // Simpan data history
-    state.rondeKe++;
-    state.historyRonde.push(state.pemain.map(p => p.poin));
-
-    // AUDIO VOCAL LOGIC
+    // BANGUN NARASI SUARA AI SESUAI REVISI KORBAN
     let narasiSuara = "";
-    // 1. Beritahu skor ronde ini
-    state.pemain.forEach(p => {
-        narasiSuara += `${p.nama} sekarang ${p.poin} poin. `;
-    });
 
-    // 2. Tambah gimmick suara khusus sesuai prioritas kejadian
-    if(adaJuara) {
+    if (adaJuara) {
+        // JIKA ADA YANG MENANG: Langsung sebut selamat, skip penyebutan poin lain!
         state.pemain[idJuara].bintang++;
-        // Reset poin turnamen untuk babak bintang selanjutnya
-        state.pemain.forEach(p => p.poin = 0);
+        state.pemain.forEach(p => p.poin = 0); // Reset game ke babak baru
         state.historyRonde = [[0,0,0,0]];
-        narasiSuara += `SELAMAT KEPADA ${namaJuara} dapat bintang 1. `;
+        
+        narasiSuara = `SELAMAT KEPADA ${namaJuara} dapat bintang 1.`;
+        
         efekBintangJatuh();
+        efekIconMenang(); // Putar Icon Header
         pushLog(`🎉 ${namaJuara} MEMENANGI GAME DAN MENDAPATKAN BINTANG!`);
-    } else if(unikKorban.length > 0) {
-        narasiSuara += "mulai dari nol ya. ";
-    } else if(adaMinus) {
-        narasiSuara += "CIEEE MINUS! ";
-        efekJempolPecundang();
+    } else {
+        // JIKA BIASA: Urutkan penyebutan skor satu per satu seperti semula
+        state.pemain.forEach(p => {
+            narasiSuara += `${p.nama} sekarang ${p.poin} poin. `;
+        });
+
+        // Tambahan gimmick kondisi ronde normal
+        if (unikKorban.length > 0) {
+            narasiSuara += "mulai dari nol ya.";
+        } else if (adaMinus) {
+            narasiSuara += "CIEEE MINUS!";
+            efekJempolPecundang();
+        }
     }
 
-    // Mainkan suara gabungan
+    // Eksekusi Suara
     hitSuaraAI(narasiSuara);
 
-    // Refresh Komponen
-    state.pemain.forEach((p, idx) => {
-        document.getElementById(`inputPoin-${idx}`).value = '';
-    });
-
+    state.rondeKe++;
+    state.historyRonde.push(state.pemain.map(p => p.poin));
+    hitungGelarAchievement();
     inisialisasiUI();
     simpanKeLocalStorage();
 }
 
 function hitungGelarAchievement() {
-    // Cari status ekstrem
     let tertinggi = [...state.pemain].sort((a,b)=>b.poin - a.poin)[0];
     let terbanyakMinus = [...state.pemain].sort((a,b)=>b.hitMinus - a.hitMinus)[0];
     let terbanyakKebakar = [...state.pemain].sort((a,b)=>b.hitBakaran - a.hitBakaran)[0];
 
     state.pemain.forEach(p => {
-        if (p.bintang > 1) {
-            p.gelaran = "dewa dari segala dewa 👑";
-        } else if (state.lastNgebakarTiga === p.id) {
-            p.gelaran = "tukang bakar 🧑‍🍳🔥";
-        } else if (p.id === tertinggi.id && p.poin > 0) {
-            p.gelaran = "dewa kartu 🃏";
-        } else if (p.id === terbanyakKebakar.id && p.hitBakaran > 0) {
-            p.gelaran = "hari apes gaada yang tau 🪵";
-        } else if (p.id === terbanyakMinus.id && p.hitMinus > 0) {
-            p.gelaran = "tukang kocok kartu 🔀";
-        } else {
-            p.gelaran = "Pemain Biasa";
-        }
+        if (p.bintang > 1) p.gelaran = "dewa dari segala dewa 👑";
+        else if (state.lastNgebakarTiga === p.id) p.gelaran = "tukang bakar 🧑‍🍳🔥";
+        else if (p.id === tertinggi.id && p.poin > 0) p.gelaran = "dewa kartu 🃏";
+        else if (p.id === terbanyakKebakar.id && p.hitBakaran > 0) p.gelaran = "hari apes gaada yang tau 🪵";
+        else if (p.id === terbanyakMinus.id && p.hitMinus > 0) p.gelaran = "tukang kocok kartu 🔀";
+        else p.gelaran = "Pemain Biasa";
     });
 }
 
 function eksekusiUndo() {
-    if(undoStack.length === 0) {
-        alert("Belum ada data ronde yang bisa di-undo!");
-        return;
-    }
-    let dataSebelumnya = undoStack.pop();
-    state = JSON.parse(dataSebelumnya);
-    pushLog("↩️ Tindakan terakhir dibatalkan (Undo dijalankan).");
+    if(undoStack.length === 0) return;
+    state = JSON.parse(undoStack.pop());
+    pushLog("↩️ Tindakan terakhir di-Undo.");
     inisialisasiUI();
     simpanKeLocalStorage();
     hitSuaraAI("Data di undo");
 }
 
 function pemicuResetTotal() {
-    if(confirm("Apakah kamu yakin mau reset total? Semua poin, bintang, dan statistik akan dihapus.")) {
+    if(confirm("Apakah kamu yakin mau reset total?")) {
         localStorage.removeItem('sadewa_cekih_state');
         state.pemain.forEach(p => {
             p.poin = 0; p.bintang = 0; p.hitBakaran = 0; p.hitMinus = 0; p.gelaran = "Pemula";
         });
         state.historyRonde = [[0,0,0,0]];
-        state.logs = ["Game direset total oleh juri tulis."];
+        state.logs = ["Game direset total."];
         state.rondeKe = 0;
         state.lastNgebakarTiga = null;
-        
         document.getElementById('setupScreen').classList.remove('hidden');
         document.getElementById('gameplayScreen').classList.add('hidden');
+        renderPapanSkor();
         hitSuaraAI("Data berhasil di hapus dari awal");
     }
 }
 
-// LOG DAN TABLE RENDERER
-function pushLog(txt) {
-    state.logs.unshift(`[R-${state.rondeKe}] ${txt}`);
-}
-
-function renderLog() {
-    const box = document.getElementById('tab-log');
-    box.innerHTML = state.logs.map(l => `<div>${l}</div>`).join('');
-}
+function pushLog(txt) { state.logs.unshift(`[R-${state.rondeKe}] ${txt}`); }
+function renderLog() { document.getElementById('tab-log').innerHTML = state.logs.map(l => `<div>${l}</div>`).join(''); }
 
 function renderHistoryTable() {
     const tbody = document.getElementById('historyTableBody');
     tbody.innerHTML = '';
     state.historyRonde.forEach((r, idx) => {
-        tbody.innerHTML += `
-            <tr class="border-b border-slate-700/50 hover:bg-slate-700/20">
-                <td class="p-1 text-slate-400 font-bold">R-${idx}</td>
-                <td class="p-1">${r[0]}</td>
-                <td class="p-1">${r[1]}</td>
-                <td class="p-1">${r[2]}</td>
-                <td class="p-1">${r[3]}</td>
-            </tr>
-        `;
+        tbody.innerHTML += `<tr class="border-b border-slate-700/50"><td>R-${idx}</td><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`;
     });
 }
 
@@ -350,74 +296,49 @@ function renderStatistik() {
             <div class="bg-slate-700/20 p-2 rounded border border-slate-700">
                 <div class="font-bold text-yellow-500 truncate">${p.nama}</div>
                 <div class="grid grid-cols-2 gap-1 text-[10px] text-slate-400 mt-1">
-                    <div>🔥 Kebakar: <b class="text-white">${p.hitBakaran}x</b></div>
-                    <div>⭐ Bintang: <b class="text-white">${p.bintang}</b></div>
-                    <div>📉 Sering Minus: <b class="text-white">${p.hitMinus}x</b></div>
+                    <div>🔥 Kebakar: <b>${p.hitBakaran}x</b></div>
+                    <div>⭐ Bintang: <b>${p.bintang}</b></div>
+                    <div>📉 Minus: <b>${p.hitMinus}x</b></div>
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
-// VISUAL CHART ENGINE
 function buatAtauUpdateChart() {
     const ctx = document.getElementById('remiChart').getContext('2d');
     let labels = state.historyRonde.map((_, i) => `R-${i}`);
-    
     let datasets = state.pemain.map((p, idx) => {
         let colors = ['#f59e0b', '#3b82f6', '#10b981', '#ec4899'];
         return {
             label: p.nama,
             data: state.historyRonde.map(r => r[idx]),
             borderColor: colors[idx],
-            backgroundColor: colors[idx] + '22',
             tension: 0.2,
             fill: false
         };
     });
-
     if (chartInstance) {
         chartInstance.data.labels = labels;
         chartInstance.data.datasets = datasets;
         chartInstance.update();
     } else {
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } },
-                scales: {
-                    x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                    y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
-                }
-            }
-        });
+        chartInstance = new Chart(ctx, { type: 'line', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false } });
     }
 }
 
-// TAB MANAGEMENT
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-    document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('text-yellow-500', 'border-b-2', 'border-yellow-500');
-        b.classList.add('text-slate-400');
-    });
-    
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('text-yellow-500', 'border-b-2', 'border-yellow-500'));
     document.getElementById(tabId).classList.remove('hidden');
     document.getElementById('btn-' + tabId).classList.add('text-yellow-500', 'border-b-2', 'border-yellow-500');
 }
 
-// EFEK ANIMASI DAN GRAFIS KHUSUS
 function efekBintangJatuh() {
     for (let i = 0; i < 40; i++) {
         let el = document.createElement('div');
-        el.className = 'falling-star';
-        el.innerText = '⭐';
+        el.className = 'falling-star'; el.innerText = '⭐';
         el.style.left = Math.random() * 100 + 'vw';
         el.style.animationDuration = (Math.random() * 2 + 1) + 's';
-        el.style.delay = Math.random() * 0.5 + 's';
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 3000);
     }
@@ -426,10 +347,8 @@ function efekBintangJatuh() {
 function efekJempolPecundang() {
     for (let i = 0; i < 5; i++) {
         let el = document.createElement('div');
-        el.className = 'floating-emoji';
-        el.innerText = '👎';
+        el.className = 'floating-emoji'; el.innerText = '👎';
         el.style.left = (Math.random() * 60 + 20) + 'vw';
-        el.style.animationDuration = '2s';
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 2000);
     }
@@ -437,62 +356,50 @@ function efekJempolPecundang() {
 
 function efekApiHancur(id) {
     let card = document.getElementById(`card-${id}`);
-    if (card) {
-        card.classList.add('fire-effect');
-        setTimeout(() => { card.classList.remove('fire-effect'); }, 3000);
+    if (card) { card.classList.add('fire-effect'); setTimeout(() => { card.classList.remove('fire-effect'); }, 3000); }
+}
+
+function efekIconMenang() {
+    let logo = document.getElementById('appLogo');
+    if(logo) {
+        logo.classList.replace('logo-animasi', 'logo-menang');
+        setTimeout(() => {
+            logo.classList.replace('logo-menang', 'logo-animasi');
+        }, 5000); // Efek putar kencang selama 5 detik setelah menang
     }
 }
 
-// SCREENSHOT CAPTURE ENGINE
 function ambilScreenshot() {
     let target = document.getElementById('captureArea');
     html2canvas(target, { backgroundColor: '#1e293b' }).then(canvas => {
         let link = document.createElement('a');
-        link.download = `Skor-Remi-SadewaCorp-Ronde-${state.rondeKe}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
+        link.download = `Skor-Cekih-SadewaCorp.png`;
+        link.href = canvas.toDataURL(); link.click();
     });
 }
 
-// THEME & CUSTOMIZER WARNA SYSTEM
 function toggleDarkMode() {
     state.isDarkMode = !state.isDarkMode;
     let b = document.getElementById('mainBody');
-    if(!state.isDarkMode) {
-        b.classList.replace('bg-slate-900', 'bg-slate-100');
-        b.classList.replace('text-slate-100', 'text-slate-900');
-        document.getElementById('btnTheme').innerText = "☀️ Terang";
-    } else {
-        b.classList.replace('bg-slate-100', 'bg-slate-900');
-        b.classList.replace('text-slate-900', 'text-slate-100');
-        document.getElementById('btnTheme').innerText = "🌙 Gelap";
-    }
+    b.className = state.isDarkMode ? "bg-slate-900 text-slate-100 min-h-screen font-sans transition-colors duration-300" : "bg-slate-100 text-slate-900 min-h-screen font-sans transition-colors duration-300";
+    document.getElementById('btnTheme').innerText = state.isDarkMode ? "🌙 Gelap" : "☀️ Terang";
     simpanKeLocalStorage();
 }
 
 function openCustomizer() { document.getElementById('customizerModal').classList.remove('hidden'); }
 function tutupCustomizer() { document.getElementById('customizerModal').classList.add('hidden'); }
-
 function simpanCustomWarna() {
     state.customColors.bg = document.getElementById('cfgBg').value;
     state.customColors.btn = document.getElementById('cfgBtn').value;
     state.customColors.text = document.getElementById('cfgText').value;
-    
-    sinkronisasiWarna();
-    tutupCustomizer();
-    simpanKeLocalStorage();
+    sinkronisasiWarna(); tutupCustomizer(); simpanKeLocalStorage();
 }
-
 function sinkronisasiWarna() {
     document.getElementById('mainBody').style.backgroundColor = state.customColors.bg;
     document.getElementById('appTitleText').style.color = state.customColors.text;
     document.getElementById('btnNext').style.backgroundColor = state.customColors.btn;
 }
-
 function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-        document.exitFullscreen();
-    }
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else document.exitFullscreen();
 }

@@ -17,15 +17,22 @@
         .fire-effect { animation: shake 0.5s ease-in-out infinite alternate, flash 0.5s ease-in-out; }
         @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(0px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(2px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(2px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
         @keyframes flash { 0% { background-color: #ef4444; } }
+        
+        /* Animasi Icon Sadewa Corp */
+        .logo-animasi { animation: pulseGlow 3s ease-in-out infinite; }
+        .logo-menang { animation: spinWin 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite; }
+        @keyframes pulseGlow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(234, 179, 8, 0.3)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.7)); } }
+        @keyframes spinWin { 0% { transform: scale(1.2) rotate(0deg); filter: drop-shadow(0 0 25px #eab308); } 100% { transform: scale(1.2) rotate(360deg); filter: drop-shadow(0 0 25px #eab308); } }
     </style>
 </head>
 <body id="mainBody" class="bg-slate-900 text-slate-100 min-h-screen font-sans transition-colors duration-300">
 
     <!-- Header Aplikasi -->
     <header class="p-3 flex justify-between items-center border-b border-slate-700 bg-slate-800/50 backdrop-blur">
-        <div class="flex items-center space-x-2">
-            <span class="text-xl">🃏</span>
-            <h1 id="appTitleText" class="font-bold text-yellow-500">Cekih Engine</h1>
+        <div class="flex items-center space-x-3">
+            <!-- Icon Aplikasi Beranimasi dari file 1000059163.png -->
+            <img id="appLogo" src="1000059163.png" alt="Sadewa Cekih Logo" class="w-9 h-9 rounded-full logo-animasi">
+            <h1 id="appTitleText" class="font-bold text-yellow-500 text-lg">Cekih Engine</h1>
         </div>
         <div id="corpName" class="text-xs text-slate-400 font-mono">score cekih by sadewa corp.</div>
     </header>
@@ -35,7 +42,11 @@
 
         <!-- 1. MODAL AWAL / SETUP PEMAIN -->
         <div id="setupScreen" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 space-y-4 shadow-xl">
-            <h2 class="text-lg font-bold text-center text-slate-200">Daftar Pemain Ronda</h2>
+            <div class="flex flex-col items-center mb-2">
+                <!-- Logo Besar di Menu Utama dari file 1000059162.png -->
+                <img src="1000059162.png" alt="Sadewa Logo" class="w-24 h-24 rounded-full logo-animasi mb-2">
+                <h2 class="text-lg font-bold text-center text-slate-200">Daftar Pemain Ronda</h2>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                     <label class="text-xs text-slate-400">Pemain A</label>
@@ -63,7 +74,7 @@
             </button>
         </div>
 
-        <!-- 2. SCREEN UTAMA GAMEPLAY (Hidden Terlebih Dahulu) -->
+        <!-- 2. SCREEN UTAMA GAMEPLAY -->
         <div id="gameplayScreen" class="hidden space-y-6">
             
             <!-- Panel Kontrol Atas & Pengaturan Kemenangan -->
@@ -86,9 +97,7 @@
                     <button onclick="ambilScreenshot()" class="bg-emerald-700 hover:bg-emerald-600 text-xs text-white px-3 py-1.5 rounded-lg transition">📸 Share/Screenshot</button>
                 </div>
                 
-                <div id="papanSkorContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Dinonaktifkan lewat JS, dirender otomatis -->
-                </div>
+                <div id="papanSkorContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
 
             <!-- TOMBOL AKSI RONDE -->
@@ -101,7 +110,7 @@
                 </button>
             </div>
 
-            <!-- GRAPH, LOG, HISTORY, STATS TABS -->
+            <!-- TAB DATA -->
             <div class="bg-slate-800 rounded-2xl border border-slate-700 p-4">
                 <div class="flex border-b border-slate-700 text-xs sm:text-sm overflow-x-auto whitespace-nowrap">
                     <button onclick="switchTab('tab-grafik')" class="tab-btn px-4 py-2 text-yellow-500 border-b-2 border-yellow-500 font-bold" id="btn-tab-grafik">📈 Grafik</button>
@@ -111,15 +120,10 @@
                 </div>
 
                 <div class="mt-4">
-                    <!-- Tab Grafik -->
                     <div id="tab-grafik" class="tab-content block">
                         <canvas id="remiChart" class="w-full h-64"></canvas>
                     </div>
-                    <!-- Tab Log -->
-                    <div id="tab-log" class="tab-content hidden max-h-48 overflow-y-auto space-y-1 text-xs text-slate-300 font-mono">
-                        <div class="text-slate-500">Belum ada aktivitas.</div>
-                    </div>
-                    <!-- Tab History -->
+                    <div id="tab-log" class="tab-content hidden max-h-48 overflow-y-auto space-y-1 text-xs text-slate-300 font-mono"></div>
                     <div id="tab-history" class="tab-content hidden max-h-48 overflow-y-auto text-xs text-slate-300">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -134,7 +138,6 @@
                             <tbody id="historyTableBody"></tbody>
                         </table>
                     </div>
-                    <!-- Tab Stats -->
                     <div id="tab-stats" class="tab-content hidden text-xs space-y-2">
                         <div id="statsContainer" class="grid grid-cols-2 gap-2"></div>
                     </div>
@@ -149,7 +152,7 @@
 
     </main>
 
-    <!-- MODAL CUSTOMIZER WARNA -->
+    <!-- MODAL CUSTOMIZER -->
     <div id="customizerModal" class="fixed inset-0 bg-black/70 backdrop-blur hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl w-full max-w-sm space-y-4">
             <h3 class="font-bold text-center">🎨 Set Warna Custom</h3>
@@ -175,12 +178,5 @@
     </div>
 
     <script src="app.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
-            });
-        }
-    </script>
 </body>
 </html>
